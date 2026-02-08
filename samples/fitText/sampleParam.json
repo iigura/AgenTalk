@@ -1,0 +1,16 @@
+{
+  "schema": "fitText",
+  "version": 1,
+  "target": {
+    "chars": 600,
+    "tolerance_ratio": 0.10
+  },
+  "keywords": {
+    "required": ["AI エージェント","並列分散処理の必要性"]
+  },
+  "prompt": {
+    "topic": "AI が切り開く未来社会",
+    "notes": "専門用語は最小限にし、読み手が一般の技術者でも理解できる文章にする。箇条書きは禁止。"
+  }
+}
+
