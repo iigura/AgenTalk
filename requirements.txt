@@ -5,4 +5,5 @@ asttokens
 ollama
 dateparser
 pdfminer.six
+chardet
 

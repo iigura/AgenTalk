@@ -5,6 +5,7 @@ import AgenTalk
 def init():
     return AgenTalk.param.SystemPhaseID_Error
 
+@AgenTalk.fastpass
 def act(tracebackStr,failedPhaseName,note):
     print(f"!!! SYSTEM ERROR !!!")
     if tracebackStr is not None:

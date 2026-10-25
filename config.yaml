@@ -1,15 +1,20 @@
 # AgenTalk config
+
+# rayHeadNodeAddress: HEAD_NODE_IP_ADDRESS:6379
+# talkChannel:        redis://HEAD_NODE_IP_ADDRESS:6789/0
+# localTicketChannel: redis://HEAD_NODE_IP_ADDRESS:6789/1
+
 rayHeadNodeAddress: 127.0.0.1:6379
 talkChannel:        redis://localhost:6789/0
 localTicketChannel: redis://localhost:6789/1
 
-defaultLLM: gemma3
+defaultLLM: gemma4
 
-phase:
+# phase:
 # base: ex) absolute path to AgetnTalk
 # base: /home/user/someDir
-  paths:
-    - samples/oodaEcho
+#   paths:
+#    - samples/oodaEcho
 #    - samples/multiStageLlmWorkflow
 
 # appDir: absolute path for your application

@@ -42,13 +42,25 @@ Install AgenTalk on **all** nodes.
 Since AgenTalk uses Ray, it is recommended to keep the Python version consistent across all nodes.
 
 ### Redis
-AgenTalk uses Redis. On Linux, run:
+AgenTalk uses Redis.
+On Ubuntu or similar Linux distributions, you can install Redis with:
 
 ```bash
 sudo apt install redis
 ```
 
-so that the Redis server can be started.
+On Ubuntu, installing Redis may automatically start the Redis service,
+which listens on the default port 6379.
+Since this port conflicts with Ray's default port,
+you should stop the service and disable its automatic startup if no other applications depend on it.
+
+```
+sudo systemctl disable --now redis-server
+```
+
+if Redis is already using port 6379,
+the command above should stop the service and release the port immediately.
+No system reboot is required.
 
 Next, start `redis-server`:
 

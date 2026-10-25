@@ -8,14 +8,17 @@ RedisConnection=None
 TalkChannelURL =None
 
 def getMessageBody():
-    item=RedisConnection.blpop(param.AgenTalkChannel)
-    _,value=item  # (key, value)
-    try:
-        msg=message.decode(value)
-        return msg    
-    except Exception as e:
-        print(f"[RedisMQ] Invalid decoded string received: {e}")
-        return None
+    while True:
+        item=RedisConnection.blpop(param.AgenTalkChannel,timeout=5)
+        if item is None:
+            continue # success time out
+        _,value=item # (key,value)
+        try:
+            msg=message.decode(value)
+            return msg    
+        except Exception as e:
+            print(f"[RedisMQ] Invalid decoded string received: {e}")
+            return None
 
 class MessageSendByRedis:
     def __init__(self,talkChannelURL,clear=False):

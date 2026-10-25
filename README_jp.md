@@ -44,14 +44,30 @@ Python インタプリタ上で import AgenTalk を実行し、
 Ray を使うので、Python のバージョンは全てのノードで
 揃えておいた方が良いと思います。
 
-### redis
-AgenTalk では Redis を利用しますので、Linux であれば
+### Redis
+AgenTalk では Redis を利用します。
+Ubuntu 等であれば
 
 ```
 sudo apt install redis
 ```
 
 として Redis server が起動できるようにして下さい。
+
+Ubuntu では、インストール時に Redis のサービスが自動起動し、
+デフォルトの 6379 番ポートを使用する場合があります。
+このポートは Ray のデフォルトポートと競合するため、
+他のアプリケーションがこの Redis サービスを使用していない場合は、
+自動起動を無効化して停止して下さい。
+
+```
+sudo systemctl disable --now redis-server
+```
+
+Redis が 6379 番ポートを使用していても、
+上記のコマンドを実行すれば、
+そのポートの使用は停止するはずです
+（なので再起動は不要です）。
 
 次に redis-server を起動します。
 

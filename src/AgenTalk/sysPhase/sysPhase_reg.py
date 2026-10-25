@@ -7,6 +7,7 @@ import AgenTalk
 def init():
     return AgenTalk.param.SystemPhaseID_Reg
 
+@AgenTalk.fastpass
 def act(targetPhasePath,recursive):
     try:
         path=Path(targetPhasePath)

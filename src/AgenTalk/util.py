@@ -1,4 +1,4 @@
-import sys,os,copy,runpy,inspect,traceback,re
+import sys,os,copy,runpy,inspect,traceback,re,socket
 import importlib.util
 from pathlib import Path
 
@@ -55,7 +55,17 @@ def getCallerFunctionDefinedFilePath(n=1):
         return None 
 
 def getRedisConnection(redisURL):
-    ret=redis.from_url(redisURL,decode_responses=True)
+    keepalive_options={}
+    if hasattr(socket,'TCP_KEEPIDLE'): # 'TCP_KEEPIDLE' is for Linux
+        keepalive_options[socket.TCP_KEEPIDLE] =60   # first probe 60 sec
+        keepalive_options[socket.TCP_KEEPINTVL]=10   # probe interval 10 sec0
+        keepalive_options[socket.TCP_KEEPCNT]  =3    # retry count
+    ret=redis.from_url(
+        redisURL,decode_responses=True,
+        socket_timeout=None,
+        socket_keepalive=True,
+        socket_keepalive_options=keepalive_options,
+    )
     return ret
 
 # Greedily match first JSON object in the output
