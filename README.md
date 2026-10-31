@@ -29,13 +29,16 @@ pip install -e .
 
 `requirements.txt` installs the following packages:
 
-* redis, ray, pyyaml, asttokens, ollama, dateparser, pdfminer.six
+* redis, ray, pyyaml, asttokens, ollama, dateparser, pdfminer.six, chardet
 
 To verify the installation, run `import AgenTalk` in a Python interpreter.
 If no error is raised, the installation was successful.
 
 ## Usage
 For details, see the README in `samples/fitText`.
+Additionally, you can find brief descriptions for examples
+such as `helloReactor` and `helloPhases` in the `samples` directory;
+please refer to them for further information.
 
 ## Runtime setup (distributed execution setup)
 Install AgenTalk on **all** nodes.

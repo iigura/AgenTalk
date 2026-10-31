@@ -30,7 +30,7 @@ pip install -e .
 
 requirements.txt により、以下のパッケージがインストールされます。
 
-- redis, ray, pyyaml, asttokens, ollama, dateparser, pdfminer.six
+- redis, ray, pyyaml, asttokens, ollama, dateparser, pdfminer.six, chardet
 
 無事にインストールできたかどうかは、
 Python インタプリタ上で import AgenTalk を実行し、
@@ -38,6 +38,8 @@ Python インタプリタ上で import AgenTalk を実行し、
 
 ## 使用方法
 詳細は samples/fitText にある README をご覧ください。
+その他、samples ディレクトリにある helloReactor や helloPhases などにも
+簡単な説明がありますので参考にして下さい。
 
 ## 実行環境の準備（分散実行の準備）
 全てのノード上で AgenTalk をインストールして下さい。
