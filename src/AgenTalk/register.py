@@ -117,9 +117,6 @@ def isPhase(pythonFilePath):
     source=path.read_text(encoding="utf-8")
     hasInit=False
     hasAct =False
-    # hasPrologue=False
-    # hasPerform =False
-    # hasEpilogue=False
 
     if not hasMagicComment(pythonFilePath): return None
     tree=ast.parse(source,filename=str(path))
@@ -127,23 +124,11 @@ def isPhase(pythonFilePath):
         if isinstance(node,ast.FunctionDef):
             if   node.name==param.InitFuncName: hasInit=True
             elif node.name==param.ActFuncName:  hasAct =True
-            # elif node.name==param.PrologueFuncName: hasPrologue=True
-            # elif node.name==param.PerformFuncName : hasPerform =True
-            # elif node.name==param.EpilogueFuncName: hasEpilogue=True
         if hasInit and hasAct:
             break
     if hasInit==False or hasAct==False:
-        # print(f"ERROR: invalid Phase. Phase file should have '{param.InitFuncName}' and '{param.PerformFuncName}' function at least ('{pythonFilePath}').")
-        print(f"ERROR: invalid Phase. Phase file should have '{param.InitFuncName}' and '{param.ActFuncName}' function ('{pythonFilePath}').")
+        print(f"ERROR: invalid Phase. "
+             +f"Phase file should have '{param.InitFuncName}' and '{param.ActFuncName}' function ('{pythonFilePath}').")
         return False
     return True
-
-    # hasAgenTalkFuncs=hasInit or hasPrologue or hasPerform or hasEpilogue
-    # if hasInit and hasPerform:
-    #     return makePhaseFuncStatus(hasInit,hasPrologue,hasPerform,hasEpilogue)
-    # else:
-    #     if hasAgenTalkFuncs:
-    #         print(f"ERROR: invalid Phase. Phase file should have '{param.InitFuncName}' and '{param.PerformFuncName}' function at least ('{pythonFilePath}').")
-    #     return None
-
 

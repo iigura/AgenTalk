@@ -1,6 +1,6 @@
 import traceback
-# from pathlib import Path
 import ray
+from ray.util.scheduling_strategies import NodeAffinitySchedulingStrategy
 
 from . import param,util,session,message,register
 
@@ -25,6 +25,8 @@ def Start(mQue,debug=False):
                 execPhaseMain(actFunc,msg,initExtra,messageSender,debug)
                 if msg.exitAfterExec:
                     break
+            elif hasattr(actFunc,param.AllNodesAttrName):
+                execOnAllNodes(actFunc,msg,initExtra,messageSender)
             else:
                 execPhase.remote(actFunc,msg,initExtra,messageSender)
     except KeyboardInterrupt:
@@ -64,6 +66,13 @@ class Ticket:
 @ray.remote
 def execPhase(actFunc,msg,initExtra,messageSender):
     execPhaseMain(actFunc,msg,initExtra,messageSender,debug=False)
+
+def execOnAllNodes(actFunc,msg,initExtra,messageSender):
+    nodeIDs=[n['NodeID'] for n in ray.nodes() if n.get('Alive',False)]
+    for nodeID in nodeIDs:
+        execPhase.options(
+            scheduling_strategy=NodeAffinitySchedulingStrategy(node_id=nodeID,soft=False)
+        ).remote(actFunc,msg,initExtra,messageSender)    
 
 def debugMode_execPhase(msg,messageSender):
     actFunc  =getActFunc(msg.phaseName)

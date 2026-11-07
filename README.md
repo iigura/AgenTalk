@@ -118,6 +118,116 @@ ray status
 If `active` shows two `node_...` entries, a remote node has been added.
 (When only the head node is running, there will be just one node listed under `active`.)
 
+### Using Multiple Computers (with Tailscale)
+When running AgenTalk across multiple computers,
+Ray and Redis must be configured to accept connections from other machines.
+
+The following example uses Tailscale.
+All computers are assumed to have Tailscale installed and to be connected to the same tailnet.
+
+#### Tailscale Access Control
+Communication between nodes must be permitted by Tailscale ACLs / Grants.
+
+Redis uses TCP port 6789, while Ray's GCS uses TCP port 6379 by default.
+However, Ray also uses additional ports for communication between nodes.
+
+For example, to allow TCP communication between two trusted computers,
+open the JSON editor under Access controls in the Tailscale admin console
+and add the following rule to the existing `grants` array:
+
+```json
+{
+    "src": ["HEAD_NODE_IP", "REMOTE_NODE_IP"],
+    "dst": ["HEAD_NODE_IP", "REMOTE_NODE_IP"],
+    "ip": ["tcp:*"]
+}
+```
+
+Replace `HEAD_NODE_IP` and `REMOTE_NODE_IP` with the respective Tailscale IP addresses.
+
+This configuration allows bidirectional TCP communication on all ports between the two specified computers.
+Since some of Ray's internal communication ports may be assigned dynamically,
+this example is intended to simplify experimental setups.
+
+Note that this also allows access to other TCP services on these computers,
+so use it only between trusted nodes.
+For production environments, it is recommended to explicitly configure Ray's communication ports
+and allow access only to the required ports.
+
+#### Starting Redis
+Start Redis on the head node.
+
+Specify both the loopback address and the Tailscale IP address so that Redis can accept connections from other computers.
+
+```bash
+redis-server \
+  --port 6789 \
+  --bind 127.0.0.1 "$(tailscale ip -4)" \
+  --protected-mode no &
+```
+
+If Redis is already running on port 6789,
+make sure that stopping it will not affect any required data
+or ongoing operations before restarting it with the settings above.
+
+```bash
+redis-cli -p 6789 shutdown
+```
+
+The configuration above is intended for experimental use with trusted Tailscale nodes only.
+Since Redis authentication is not configured,
+avoid exposing Redis to untrusted networks.
+For long-term operation, consider enabling authentication using Redis ACLs or other appropriate mechanisms.
+
+You can verify the connection from a remote node by running:
+
+```bash
+redis-cli -h HEAD_NODE_HOST -p 6789 ping
+```
+
+Replace `HEAD_NODE_HOST` with the hostname or IP address of the head node.
+
+If Redis responds with `PONG`, the connection is working correctly.
+
+#### Starting Ray
+On the head node, start Ray by explicitly specifying its Tailscale IP address.
+
+```bash
+ray start --head --node-ip-address=$(tailscale ip -4)
+```
+
+On a remote node, join the Ray cluster by running:
+
+```bash
+ray start \
+  --address=HEAD_NODE_HOST:6379 \
+  --node-ip-address=$(tailscale ip -4)
+```
+
+Replace `HEAD_NODE_HOST` with the hostname or IP address of the head node.
+
+You can check which nodes have joined the cluster by running the following command on the head node:
+
+```bash
+ray status
+```
+
+#### Configuring AgenTalk
+On each computer, specify the Ray and Redis connection addresses in `config.yaml`.
+
+For example, with the configuration described above, use:
+
+```yaml
+rayHeadNodeAddress: HEAD_NODE_HOST:6379
+talkChannel:        redis://HEAD_NODE_HOST:6789/0
+```
+
+Replace `HEAD_NODE_HOST` with the hostname or IP address of the head node.
+
+Make sure that all nodes connect to the same Ray cluster and Redis server.
+
+Once the configuration is complete, start the Reactor on the head node by running `agt start`.
+
 ### Starting the reactor
 From a shell on the terminal responsible for the head node, run:
 

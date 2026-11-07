@@ -16,6 +16,10 @@ def fastpass(func):
     setattr(func,param.FastpassAttrName,True)
     return func
 
+def allnodes(func):
+    setattr(func,param.AllNodesAttrName,True)
+    return func
+
 RayHeadNodeAddrStr=None
 TalkChannelURL=None
 LocalTicketChannelURL=None

@@ -2,7 +2,7 @@
 
 import sys,os
 
-from . import cmd_start,cmd_stop
+from . import cmd_info,cmd_start,cmd_stop
 from . import cmd_clearTicket,cmd_addTicket,cmd_countTicket
 from . import cmd_echo
 from . import cmd_reg,cmd_run
@@ -83,10 +83,8 @@ help  - Display this message.
 """)
 
 def infoFunc():
-    major=sys.version_info.major
-    minor=sys.version_info.minor
-    micro=sys.version_info.micro
-    print(f"agt is running on Python {major}.{minor}.{micro}")
+    configFilePath=getConfigFilePath()
+    cmd_info.main(configFilePath)
 
 def getConfigFilePath():
     thisFilePath=os.path.abspath(__file__)

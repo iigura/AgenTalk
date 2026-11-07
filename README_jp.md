@@ -129,6 +129,106 @@ node が 2 行表示されれば、ray start にて、リモートノードが
 追加されていることとなる（ヘッドノードだけ起動している時は
 active のところに表示される node は 1 つだけとなります）。
 
+### 複数のコンピュータを使う場合（Tailscale を利用する場合）
+複数のコンピュータを利用して AgenTalk を実行する場合は、
+Ray および Redis に他のコンピュータから接続できるように設定する必要があります。
+
+ここでは Tailscale を使った構成例を示します。
+すべてのコンピュータに Tailscale がインストールされ、同じ tailnet に参加しているものとします。
+
+#### Tailscale のアクセス制御
+Tailscale の ACL / Grants によって、ノード間の通信が許可されている必要があります。
+
+Redis は TCP 6789 番ポート、Ray の GCS は標準で TCP 6379 番ポートを使用します。
+ただし、Ray はこれら以外にも複数のポートを使ってノード間通信を行います。
+
+例えば、信頼できる 2 台のコンピュータ間で TCP 通信を許可する場合は、
+Tailscale の管理画面にある Access controls の JSON editor で、
+既存の `grants` 配列に次のルールを追加します。
+
+```json
+{
+    "src": ["HEAD_NODE_IP", "REMOTE_NODE_IP"],
+    "dst": ["HEAD_NODE_IP", "REMOTE_NODE_IP"],
+    "ip": ["tcp:*"]
+}
+```
+
+`HEAD_NODE_IP` や `REMOTE_NODE_IP` は、Tailscale で割り振られた IP アドレスに置き換えて下さい。
+
+この設定は、指定した2台の間のすべての TCP ポートへの通信を双方向に許可します。
+Ray の内部通信ポートは動的に割り当てられる場合があるため、実験用の構成を簡単にするための設定例です。
+
+他のサービスへのアクセスも許可されるため、信頼できるノードに限定して使用して下さい。
+運用環境では、Ray の通信ポートを明示的に設定し、必要なポートだけを許可することを推奨します。
+
+#### Redis の起動
+ヘッドノード側で Redis を起動します。
+
+他のコンピュータから接続できるように、ローカルアドレスと Tailscale の IP アドレスを指定します。
+
+```bash
+redis-server \
+  --port 6789 \
+  --bind 127.0.0.1 "$(tailscale ip -4)" \
+  --protected-mode no &
+```
+
+すでに Redis が 6789 番ポートで起動している場合は、
+必要なデータや処理に影響しないことを確認してから、既存の Redis を停止して起動し直して下さい。
+
+```bash
+redis-cli -p 6789 shutdown
+```
+
+上記は信頼できる Tailscale ノードだけが接続する実験用の設定例です。
+Redis 自体の認証は設定していないため、外部ネットワークへの公開は避け、
+長期運用では Redis ACL 等による認証も検討して下さい。
+
+リモートノード側から、次のコマンドで接続を確認できます。
+
+```bash
+redis-cli -h HEAD_NODE_HOST -p 6789 ping
+```
+
+上記コマンド中の `HEAD_NODE_HOST` は、ヘッドノードのホスト名もしくは IP アドレスに置き換えて下さい。
+
+`PONG` が返ってくれば正常です。
+
+#### Ray の起動
+ヘッドノード側では、Tailscale の IP アドレスを明示的に指定して Ray を起動します。
+
+```bash
+ray start --head --node-ip-address=$(tailscale ip -4)
+```
+
+リモートノード側では、次のようにしてクラスタに参加します。
+
+```bash
+ray start \
+  --address=HEAD_NODE_HOST:6379 \
+  --node-ip-address=$(tailscale ip -4)
+```
+
+ヘッドノード上で以下を実行すると、参加しているノードを確認できます。
+
+```bash
+ray status
+```
+
+#### AgenTalk の設定
+各コンピュータの `config.yaml` にある、Ray および Redis の接続先も指定して下さい。
+
+例えば、上記の構成であれば、次のように設定します。
+
+```yaml
+rayHeadNodeAddress: HEAD_NODE_HOST:6379
+talkChannel:        redis://HEAD_NODE_HOST:6789/0
+```
+
+すべてのノードが同じ Ray クラスタおよび Redis サーバーを参照するようにします。
+以上の設定が完了したら、ヘッドノード側で `agt start` を実行して Reactor を起動して下さい。
+
 ### リアクタの起動
 ヘッドノードを担当するターミナル上のシェルより、
 以下のコマンドを実行して下さい。

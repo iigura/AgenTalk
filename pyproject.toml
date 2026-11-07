@@ -4,7 +4,7 @@ build-backend="setuptools.build_meta"
 
 [project]
 name="AgenTalk"
-version="0.3.0"
+version="0.8.92"
 description="Foundation module for autonomous AI agents."
 authors=[{name="Koji Iigura",email="koji.iigura@gmail.com"}]
 readme="README.md"

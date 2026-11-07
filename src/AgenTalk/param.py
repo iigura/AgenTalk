@@ -4,6 +4,7 @@ def setRunningOnHead():
     RunningOnHead=True
 
 FastpassAttrName='_AgenTalk_fastpass_flag'
+AllNodesAttrName='_AgenTalk_allnodes_flag'
 
 InitFuncName='init'
 ActFuncName='act'
