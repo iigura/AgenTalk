@@ -30,9 +30,14 @@ clearTicket (alias: cl)   - Clear the local Ticket.
                             No arguments are needed.
                             You can run either 'agt clearTicket' or 'agt cl'.
 
-addTicket (alias: at)     - Add one local Ticket.
+addTicket (alias: at)     - Add local tickets.
                             No arguments are needed.
+                            You can also pass [num] to specify the quantity (e.g., 'agt at 5').
                             You can run either 'agt addTicket' or 'agt at'.
+
+setTicket (alias: st)     - Set the number of local tickets.
+                            Requires [num] to specify the count (e.g., 'agt st 5').
+                            You can run either 'agt setTicket [num]' or 'agt st [num]'.
 
 countTicket (alias: ct)   - Count the number of local Tickets.
                             No arguments are needed.
@@ -108,9 +113,22 @@ def clearTicketFunc():
     configFilePath=getConfigFilePath()
     cmd_clearTicket.main(configFilePath)
 
-def addTicketFunc():
+def addTicketFunc(*args):
     configFilePath=getConfigFilePath()
     cmd_addTicket.main(configFilePath)
+
+def setTicketFunc(*args):
+    if len(args)!=1:
+        print("Error: 'setTicket' requires one argument.")
+        return
+    n=cmd_addTicket.getNumOfTickets(args[0])
+    configFilePath=getConfigFilePath()
+    cmd_clearTicket.main(configFilePath,verbose=False)
+    localTicketChannelURL=cmd_addTicket.addTickets(n)
+    if n==1:
+        print(f"set a ticket (local ticket channel='{localTicketChannelURL}').")
+    else:
+        print(f"set {n} tickets (local ticket channel='{localTicketChannelURL}').")
 
 def countTicketFunc():
     configFilePath=getConfigFilePath()
@@ -154,6 +172,8 @@ CmdDict={
     'cl'         :clearTicketFunc,
     'addTicket'  :addTicketFunc,
     'at'         :addTicketFunc,
+    'setTicket'  :setTicketFunc,
+    'st'         :setTicketFunc,
     'countTicket':countTicketFunc,
     'ct'         :countTicketFunc,
     'reg'        :regFunc,

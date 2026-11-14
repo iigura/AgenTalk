@@ -4,7 +4,7 @@
 # talkChannel:        redis://HEAD_NODE_IP_ADDRESS_OR_HOST_NAME:6789/0
 # localTicketChannel: redis://HEAD_NODE_IP_ADDRESS_OR_HOST_NAME:6789/1
 
-rayHeadNodeAddress: 127.0.0.1:6379
+rayHeadNodeAddress: localhost:6379
 talkChannel:        redis://localhost:6789/0
 localTicketChannel: redis://localhost:6789/1
 

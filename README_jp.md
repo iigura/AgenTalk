@@ -245,7 +245,8 @@ agt start
 （良くわからない場合はとりあえず 1 枚だけ登録すれば良いと思います）。
 
 - agt cl にてチケットのクリア（チケット数を 0 にします）ができます。
-- agt at でチケットが 1 枚追加されます（at = add ticket）
+- agt at でチケットが追加されます（at = add ticket）
+- agt st でチケット数を設定できます（st = set ticket）
 - agt ct でチケット数が確認できます（ct = count ticket）
 
 詳しくは agt help を実行して下さい。

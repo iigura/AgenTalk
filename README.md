@@ -242,7 +242,8 @@ If you use a local LLM, decide the number of tickets while considering GPU memor
 (if you’re unsure, start by registering just one ticket).
 
 * `agt cl` clears tickets (sets the ticket count to 0)
-* `agt at` adds one ticket (at = add ticket)
+* `agt at` adds ticket\[s\] (at = add ticket)
+* `agt st` sets ticket (st = set ticket)
 * `agt ct` shows the current ticket count (ct = count ticket)
 
 For more details, run `agt help`.

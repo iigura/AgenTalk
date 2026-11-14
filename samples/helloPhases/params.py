@@ -1,4 +1,3 @@
-# from frigid import Namespace
 from types import SimpleNamespace
 
 phase=SimpleNamespace(

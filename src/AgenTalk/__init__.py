@@ -1,4 +1,4 @@
-import os,yaml
+import os,yaml,pickle,base64
 import ray,redis
 from importlib.metadata import version
 from pathlib import Path
@@ -122,6 +122,9 @@ def sugar(targetFunc):
     g['setSessionInfoKV'   ]=setSessionInfoKV
     g['getSessionInfo'     ]=getSessionInfo
     g['getSessionInfoValue']=getSessionInfoValue
+    g['getGlobalRedisConnection']=getGlobalRedisConnection
+    g['pushGlobalRedis'         ]=pushGlobalRedis
+    g['popGlobalRedis'          ]=popGlobalRedis
     # File
     g['GetThisFileDir'   ]=GetThisFileDir
     g['MakeUniqueFileObj']=MakeUniqueFileObj
@@ -175,6 +178,24 @@ def getSessionInfo():
 def getSessionInfoValue(key):
     session=getSession()
     ret=session.info[key]
+    return ret
+
+def getGlobalRedisConnection():
+    session=getSession()
+    r=util.getRedisConnection(session.ticketChannelURL)
+    return r
+
+def pushGlobalRedis(key,data):
+    r=getGlobalRedisConnection()
+    encodedBytes=pickle.dumps(data)
+    encodedStr=base64.b64encode(encodedBytes).decode('utf-8')
+    r.rpush(key,encodedStr)
+
+def popGlobalRedis(key):
+    r=getGlobalRedisConnection()
+    _,encodedStr=r.blpop(key)
+    dataBytes=base64.b64decode(encodedStr)
+    ret=pickle.loads(dataBytes)
     return ret
 
 def getPhaseName():
